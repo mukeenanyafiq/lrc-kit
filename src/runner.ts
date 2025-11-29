@@ -77,7 +77,7 @@ export class Runner {
     let largestTimestamp = -1.0;
 
     for (const [key, line] of this.lrc.lyrics.entries()) {
-      if (line.timestamp <= largestTimestamp) {
+      if (line.timestamp < largestTimestamp) {
         break;
       }
       if (line.timestamp <= timestamp) {
@@ -88,7 +88,6 @@ export class Runner {
         break;
       }
     }
-
     return currentIndex;
   }
 
