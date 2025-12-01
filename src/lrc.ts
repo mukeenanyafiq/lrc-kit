@@ -2,11 +2,14 @@ import { parseLine, LineType } from './line-parser';
 
 export interface Lyric {
   timestamp: number;
+  wordTimestamps: {timestamp: number, content: string}[];
+  rawContent: string;
   content: string;
 }
 
 export interface CombineLyric {
   timestamps: number[];
+  rawContent: string;
   content: string;
 }
 
@@ -26,7 +29,7 @@ export function padZero(num: number | string, size: number = 2): string {
  */
 export function timestampToString(timestamp: number): string {
   return `${padZero(Math.floor(timestamp / 60))}:${padZero(
-    (timestamp % 60).toFixed(2),
+    (timestamp % 60).toFixed(2)
   )}`;
 }
 
@@ -62,6 +65,8 @@ export class Lrc {
             line.timestamps.forEach((timestamp) => {
               lyrics.push({
                 timestamp: timestamp,
+                wordTimestamps: line.wordTimestamps,
+                rawContent: line.rawContent,
                 content: line.content,
               });
             });
@@ -117,7 +122,7 @@ export class Lrc {
     opts.sort = 'sort' in opts ? opts.sort : true;
 
     const lines: string[] = [],
-      lyricsMap: Record<string, number[]> = {},
+      lyricsMap: Record<string, [[number], string]> = {},
       lyricsList: CombineLyric[] = [];
 
     // generate info
@@ -129,9 +134,9 @@ export class Lrc {
       // uniqueness
       this.lyrics.forEach((lyric) => {
         if (lyric.content in lyricsMap) {
-          lyricsMap[lyric.content].push(lyric.timestamp);
+          lyricsMap[lyric.content][0].push(lyric.timestamp);
         } else {
-          lyricsMap[lyric.content] = [lyric.timestamp];
+          lyricsMap[lyric.content] = [[lyric.timestamp], lyric.rawContent];
         }
       });
 
@@ -141,7 +146,8 @@ export class Lrc {
           lyricsMap[content].sort();
         }
         lyricsList.push({
-          timestamps: lyricsMap[content],
+          timestamps: lyricsMap[content][0],
+          rawContent: lyricsMap[content][1],
           content: content,
         });
       }
@@ -155,7 +161,7 @@ export class Lrc {
         lines.push(
           `[${lyric.timestamps
             .map((timestamp) => timestampToString(timestamp))
-            .join('][')}]${lyric.content || ''}`,
+            .join('][')}]${lyric.rawContent || ''}`,
         );
       });
     } else {

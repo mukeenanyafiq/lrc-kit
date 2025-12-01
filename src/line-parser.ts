@@ -1,9 +1,11 @@
 // match `[12:30.1][12:30.2]`
-export const TAGS_REGEXP = /^(\[.+\])+/;
+export const TAGS_REGEXP = /^((?:\[[^\]]+\])+|(?:<[^>]+>)+)/;
 // match `[ti: The Title]`
 export const INFO_REGEXP = /^\s*(\w+)\s*:(.*)$/;
 // match `[512:34.1] lyric content`
 export const TIME_REGEXP = /^\s*(\d+)\s*:\s*(\d+(\s*[\.:]\s*\d+)?)\s*$/;
+// match `<12:30.1> word` with tags
+export const WORDTIME_REGEXP = /<\d{1,2}:\d{1,2}(?:\.\d+)?\s*>/g;
 
 export enum LineType {
   INVALID = 'INVALID',
@@ -18,6 +20,8 @@ export interface InvalidLine {
 export interface TimeLine {
   type: LineType.TIME;
   timestamps: number[];
+  wordTimestamps: {timestamp: number, content: string}[];
+  rawContent: string;
   content: string;
 }
 
@@ -34,12 +38,13 @@ export function parseTags(line: string): null | [string[], string] {
     return null;
   }
   const tag = matches[0];
-  const content = line.substr(tag.length);
+  const content = line.substring(tag.length);
   return [tag.slice(1, -1).split(/\]\s*\[/), content];
 }
 
 export function parseTime(tags: string[], content: string): TimeLine {
   const timestamps: number[] = [];
+  const wordTimestamps: {timestamp: number, content: string}[] = [];
   tags.forEach((tag) => {
     const matches = TIME_REGEXP.exec(tag)!;
     const minutes = parseFloat(matches[1]);
@@ -48,10 +53,29 @@ export function parseTime(tags: string[], content: string): TimeLine {
     );
     timestamps.push(minutes * 60 + seconds);
   });
+  const cleanContents = content.replace(WORDTIME_REGEXP, '').trim().split(' ').filter(t => t !== '');
+  const wordTMatches = content.match(WORDTIME_REGEXP);
+  if (wordTMatches) {
+    wordTMatches.forEach((wordTag, i) => {
+      const parsedTags = parseTags(wordTag);
+      const [tags] = parsedTags!;
+      const matches = TIME_REGEXP.exec(tags[0])!;
+      const minutes = parseFloat(matches[1]);
+      const seconds = parseFloat(
+        matches[2].replace(/\s+/g, '').replace(':', '.'),
+      );
+      wordTimestamps.push({
+        timestamp: minutes * 60 + seconds,
+        content: cleanContents[i],
+      });
+    });
+  }
   return {
     type: LineType.TIME,
     timestamps,
-    content: content.trim(),
+    wordTimestamps,
+    rawContent: content.trim(),
+    content: cleanContents.join(' '),
   };
 }
 
