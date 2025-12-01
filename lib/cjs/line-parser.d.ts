@@ -1,6 +1,7 @@
 export declare const TAGS_REGEXP: RegExp;
 export declare const INFO_REGEXP: RegExp;
 export declare const TIME_REGEXP: RegExp;
+export declare const WORDTIME_REGEXP: RegExp;
 export declare enum LineType {
     INVALID = "INVALID",
     INFO = "INFO",
@@ -12,6 +13,11 @@ export interface InvalidLine {
 export interface TimeLine {
     type: LineType.TIME;
     timestamps: number[];
+    wordTimestamps: {
+        timestamp: number;
+        content: string;
+    }[];
+    rawContent: string;
     content: string;
 }
 export interface InfoLine {

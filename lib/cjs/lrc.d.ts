@@ -1,9 +1,15 @@
 export interface Lyric {
     timestamp: number;
+    wordTimestamps: {
+        timestamp: number;
+        content: string;
+    }[];
+    rawContent: string;
     content: string;
 }
 export interface CombineLyric {
     timestamps: number[];
+    rawContent: string;
     content: string;
 }
 export declare type Info = Record<string, string>;
