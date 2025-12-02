@@ -12,7 +12,7 @@ export interface CombineLyric {
     rawContent: string;
     content: string;
 }
-export declare type Info = Record<string, string>;
+export type Info = Record<string, string>;
 export declare function padZero(num: number | string, size?: number): string;
 /**
  * get lrc time string
@@ -22,7 +22,7 @@ export declare function padZero(num: number | string, size?: number): string;
  * @param timestamp second timestamp
  */
 export declare function timestampToString(timestamp: number): string;
-export declare type LineFormat = '\r\n' | '\r' | '\n';
+export type LineFormat = '\r\n' | '\r' | '\n';
 export interface ToStringOptions {
     combine: boolean;
     sort: boolean;

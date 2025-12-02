@@ -3,11 +3,13 @@ import { Lrc } from './lrc';
 export class Runner {
   offset: boolean;
   _currentIndex: number;
+  _currentWordIndex: number;
   lrc!: Lrc;
 
   constructor(lrc: Lrc = new Lrc(), offset: boolean = true) {
     this.offset = offset;
     this._currentIndex = -1;
+    this._currentWordIndex = -1;
     this.setLrc(lrc);
   }
 
@@ -43,7 +45,9 @@ export class Runner {
     } else if (this._currentIndex < -1) {
       this._currentIndex = -1;
     }
-    this._currentIndex = this._findIndex2(timestamp);
+    const [index, wordIndex] = this._findIndex2(timestamp);
+    this._currentIndex = index;
+    this._currentWordIndex = wordIndex || -1;
   }
 
   _findIndex(timestamp: number, startIndex: number): number {
@@ -72,9 +76,11 @@ export class Runner {
     }
   }
 
-  _findIndex2(timestamp: number): number {
+  _findIndex2(timestamp: number): [number, number] {
     let currentIndex = -1;
+    let currentWordIndex = -1;
     let largestTimestamp = -1.0;
+    let largestWordTimestamp = -1.0;
 
     for (const [key, line] of this.lrc.lyrics.entries()) {
       if (line.timestamp < largestTimestamp) {
@@ -88,7 +94,24 @@ export class Runner {
         break;
       }
     }
-    return currentIndex;
+
+    if (currentIndex >= 0) {
+      const line = this.lrc.lyrics[currentIndex];
+      for (const [key, wordT] of line.wordTimestamps.entries()) {
+        if (wordT.timestamp < largestWordTimestamp) {
+          break;
+        }
+        if (wordT.timestamp <= timestamp) {
+          currentWordIndex = key;
+          largestWordTimestamp = wordT.timestamp;
+        }
+        if (wordT.timestamp > timestamp) {
+          break;
+        }
+      }
+    }
+
+    return [currentIndex, currentWordIndex];
   }
 
   getInfo() {
