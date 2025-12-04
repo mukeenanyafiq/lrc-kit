@@ -5,7 +5,7 @@ export const INFO_REGEXP = /^\s*(\w+)\s*:(.*)$/;
 // match `[512:34.1] lyric content`
 export const TIME_REGEXP = /^\s*(\d+)\s*:\s*(\d+(\s*[\.:]\s*\d+)?)\s*$/;
 // match `<12:30.1> word` with tags
-export const WORDTIME_REGEXP = /<\d{1,2}:\d{1,2}(?:\.\d+)?\s*>/g;
+export const WORDTIME_REGEXP = /<(\d+:\d+\.\d+)>/g;
 
 export enum LineType {
   INVALID = 'INVALID',
@@ -53,9 +53,10 @@ export function parseTime(tags: string[], content: string): TimeLine {
     );
     timestamps.push(minutes * 60 + seconds);
   });
-  const cleanContents = content.replace(WORDTIME_REGEXP, '').trim().split(' ').filter(t => t !== '');
+  let cleanContents = content.replace(WORDTIME_REGEXP, '/|/').split("/|/").map((f, i, s) => f.substring(1, i+1 < s.length ? Math.max(1, f.length-1) : undefined) )
   const wordTMatches = content.match(WORDTIME_REGEXP);
   if (wordTMatches) {
+    cleanContents.shift()
     wordTMatches.forEach((wordTag, i) => {
       const parsedTags = parseTags(wordTag);
       const [tags] = parsedTags!;
@@ -75,7 +76,7 @@ export function parseTime(tags: string[], content: string): TimeLine {
     timestamps,
     wordTimestamps,
     rawContent: content.trim(),
-    content: cleanContents.join(' '),
+    content: cleanContents.join(''),
   };
 }
 

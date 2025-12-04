@@ -1,10 +1,10 @@
 export interface Lyric {
     timestamp: number;
-    wordTimestamps: {
+    wordTimestamps?: {
         timestamp: number;
         content: string;
     }[];
-    rawContent: string;
+    rawContent?: string;
     content: string;
 }
 export interface CombineLyric {
@@ -35,7 +35,13 @@ export declare class Lrc {
      * parse lrc text and return a Lrc object
      */
     static parse(text: string): Lrc;
+    /**
+     * apply offset time to each lyric timestamp
+     */
     offset(offsetTime: number): void;
+    /**
+     * clone an entire Lrc object
+     */
     clone(): Lrc;
     /**
      * get lrc text

@@ -2,8 +2,8 @@ import { parseLine, LineType } from './line-parser';
 
 export interface Lyric {
   timestamp: number;
-  wordTimestamps: {timestamp: number, content: string}[];
-  rawContent: string;
+  wordTimestamps?: {timestamp: number, content: string}[];
+  rawContent?: string;
   content: string;
 }
 
@@ -81,6 +81,9 @@ export class Lrc {
     return lrc;
   }
 
+  /**
+   * apply offset time to each lyric timestamp
+   */
   offset(offsetTime: number) {
     this.lyrics.forEach((lyric) => {
       lyric.timestamp += offsetTime;
@@ -90,6 +93,9 @@ export class Lrc {
     });
   }
 
+  /**
+   * clone an entire Lrc object
+   */
   clone() {
     function clonePlainObject<T extends Record<any, any>>(obj: T) {
       const newObj: T = {} as T;
@@ -136,7 +142,7 @@ export class Lrc {
         if (lyric.content in lyricsMap) {
           lyricsMap[lyric.content][0].push(lyric.timestamp);
         } else {
-          lyricsMap[lyric.content] = [[lyric.timestamp], lyric.rawContent];
+          lyricsMap[lyric.content] = [[lyric.timestamp], lyric.rawContent!];
         }
       });
 
