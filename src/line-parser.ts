@@ -53,7 +53,7 @@ export function parseTime(tags: string[], content: string): TimeLine {
     );
     timestamps.push(minutes * 60 + seconds);
   });
-  let cleanContents = content.replace(WORDTIME_REGEXP, '/|/').split("/|/").map((f, i, s) => f.substring(1, i+1 < s.length ? Math.max(1, f.length-1) : undefined) )
+  let cleanContents = content.split(WORDTIME_REGEXP).map((f, i, s) => f.substring(1, i+1 < s.length ? Math.max(1, f.length-1) : undefined) )
   const wordTMatches = content.match(WORDTIME_REGEXP);
   if (wordTMatches) {
     cleanContents.shift()
