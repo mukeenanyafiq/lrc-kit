@@ -5,7 +5,7 @@ export const INFO_REGEXP = /^\s*(\w+)\s*:(.*)$/;
 // match `[512:34.1] lyric content`
 export const TIME_REGEXP = /^\s*(\d+)\s*:\s*(\d+(\s*[\.:]\s*\d+)?)\s*$/;
 // match `<12:30.1> word` with tags
-export const WORDTIME_REGEXP = /<(\d+:\d+\.\d+)>/g;
+export const WORDTIME_REGEXP = /<\d+:\d+\.\d+>/g;
 
 export enum LineType {
   INVALID = 'INVALID',
