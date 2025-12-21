@@ -3,7 +3,7 @@ import { parseLine, LineType } from './line-parser';
 export interface Lyric {
   timestamp: number;
   wordTimestamps?: {timestamp: number, content: string}[];
-  rawContent?: string;
+  rawContent: string;
   content: string;
 }
 
@@ -44,6 +44,7 @@ export interface ToStringOptions {
 export class Lrc {
   info: Info = {};
   lyrics: Lyric[] = [];
+  plain: string = "";
 
   /**
    * parse lrc text and return a Lrc object
@@ -51,6 +52,8 @@ export class Lrc {
   static parse(text: string) {
     const lyrics: Lyric[] = [];
     const info: Info = {};
+    let plain: string = "";
+
     text
       .split(/\r\n|[\n\r]/g)
       .map((line) => {
@@ -62,22 +65,26 @@ export class Lrc {
             info[line.key] = line.value;
             break;
           case LineType.TIME:
-            line.timestamps.forEach((timestamp) => {
+            line.timestamps.forEach((timestamp, index) => {
               lyrics.push({
                 timestamp: timestamp,
                 wordTimestamps: line.wordTimestamps,
                 rawContent: line.rawContent,
                 content: line.content,
               });
+
+              plain += `${line.content}\n`;
             });
             break;
           default:
             break;
         }
       });
+
     var lrc = new this();
     lrc.lyrics = lyrics;
     lrc.info = info;
+    lrc.plain = plain;
     return lrc;
   }
 
